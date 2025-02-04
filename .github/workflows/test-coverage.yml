@@ -4,7 +4,7 @@ on:
   pull_request:
   push:
     branches:
-      - main  # Asegura que se ejecute en la rama principal
+      - '*' # Asegura que se ejecute en la rama principal
 
 jobs:
   coverage:
