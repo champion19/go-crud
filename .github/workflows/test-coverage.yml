@@ -1,34 +1,41 @@
-name: Test Coverage
-
+name: "Go Coverage"
 on:
   pull_request:
+  push:
     branches:
+      # It's important that the action also runs on merge to main
       - main
 
 jobs:
-  test:
+  coverage:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout código
-        uses: actions/checkout@v4
+    - uses: actions/checkout@v4
+      with:
+        # default fetch-depth is insufficent to find previous coverage notes
+        fetch-depth: 10
 
-      - name: Instalar Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.21' # Cambia a tu versión de Go
+    - uses: gwatts/go-coverage-action@v2
+      id: coverage
+      with:
+        # Optional coverage threshold
+        # use fail-coverage to determine what should happen below this threshold
+        coverage-threshold: 80
 
-      - name: Ejecutar pruebas con cobertura
-        run: go test -coverprofile=coverage.out ./...
+        # collect coverage for all packages beyond the one under test
+        cover-pkg: ./...
 
-      - name: Verificar cobertura mínima (90%)
-        run: |
-          coverage=$(go tool cover -func=coverage.out | grep total | awk '{print substr($3, 1, length($3)-1)}')
-          echo "Coverage actual: $coverage%"
-          if (( $(echo "$coverage < 90" | bc -l) )); then
-            echo "❌ El coverage es menor al 90%. No puedes hacer merge."
-            exit 1
-          else
-            echo "✅ El coverage es suficiente."
-          fi
+        # Ignore code-generated files when calculating coverage totals
+        ignore-pattern: |
+          \.pb\.go$
+          \_string\.go$
+        
+        # A url that the html report will be accessible at, once your
+        # workflow uploads it.  Used in the pull request comment.
+        report-url: https://artifacts.example.com/go-coverage/${{ github.ref_name}}.html
 
+    - name: Upload coverage to s3
+      # ensure this runs regardless of whether the threshold is met using always()
+      if: always() && steps.coverage.outputs.report-pathname != ''
+      run: |
+        aws s3 cp ${{ steps.coverage.outputs.report-pathname }} s3://artifacts.example.com-bucket/go-coverage/${{ github.ref_name}}.html
