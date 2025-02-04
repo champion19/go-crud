@@ -20,6 +20,11 @@ jobs:
         with:
           go-version: stable  # Usa la versión estable de Go
 
+      - name: Autenticarse en GitHub
+        run: gh auth status
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Debug working directory
         run: ls -la  # Verificar en qué directorio estamos
 
