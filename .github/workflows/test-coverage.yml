@@ -28,17 +28,8 @@ jobs:
       - name: Archive Go Coverage Report
         uses: actions/upload-artifact@v4
         with:
-        name: go-coverage-report
-       path: ${{ steps.coverage.outputs.report-pathname }}
-
-
-      - name: Debug working directory
-        run: ls -la  # Verificar en qué directorio estamos
-
-
-      - name: Upload coverage as GitHub artifact
-        uses: actions/upload-artifact@v4
-        with:
           name: go-coverage-report
           path: ${{ steps.coverage.outputs.report-pathname }}
 
+      - name: Debug working directory
+        run: ls -la  # Verificar en qué directorio estamos
