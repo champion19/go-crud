@@ -23,7 +23,7 @@ jobs:
       - name: Debug GH Token
         run: echo "GH_TOKEN is set"
         env:
-         GH_TOKEN: ${{ secrets.GO_SECRET_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Debug working directory
         run: ls -la  # Verificar en qué directorio estamos
