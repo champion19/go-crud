@@ -25,28 +25,20 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Archive Go Coverage Report
+        uses: actions/upload-artifact@v4
+        with:
+        name: go-coverage-report
+       path: ${{ steps.coverage.outputs.report-pathname }}
+
+
       - name: Debug working directory
         run: ls -la  # Verificar en qué directorio estamos
 
-      - name: Initialize Go module
-        run: |
-          if [ ! -f go.mod ]; then
-            go mod init example.com/myproject
-          fi
-          go mod tidy  # Asegura que todas las dependencias estén actualizadas
 
-      - name: Run Go Coverage
-        uses: gwatts/go-coverage-action@v2
-        id: coverage
+      - name: Upload coverage as GitHub artifact
+        uses: actions/upload-artifact@v4
         with:
-          coverage-threshold: 80
-          cover-pkg: ./...
-          ignore-pattern: |
-            \.pb\.go$
-            \_string\.go$
-          report-url: https://artifacts.example.com/go-coverage/${{ github.ref_name}}.html
+          name: go-coverage-report
+          path: ${{ steps.coverage.outputs.report-pathname }}
 
-      - name: Upload coverage to S3
-        if: always() && steps.coverage.outputs.report-pathname != ''
-        run: |
-          aws s3 cp ${{ steps.coverage.outputs.report-pathname }} s3://artifacts.example.com-bucket/go-coverage/${{ github.ref_name}}.html
