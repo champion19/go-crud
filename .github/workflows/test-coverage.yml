@@ -20,16 +20,17 @@ jobs:
         with:
           go-version: stable  # Usa la versión estable de Go
 
-      - name: Debug GH Token
-        run: echo "GH_TOKEN is set"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run Go tests with coverage
+        run: |
+          go test -covermode=count -coverprofile=coverage.out ./...
+          go tool cover -html=coverage.out -o coverage.html
+        # Este paso genera los archivos `coverage.out` y `coverage.html`
 
       - name: Archive Go Coverage Report
         uses: actions/upload-artifact@v4
         with:
           name: go-coverage-report
-          path: ${{ steps.coverage.outputs.report-pathname }}
+          path: coverage.html  # Asegúrate de que el archivo de cobertura se haya generado correctamente
 
       - name: Debug working directory
         run: ls -la  # Verificar en qué directorio estamos
