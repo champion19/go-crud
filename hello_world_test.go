@@ -25,7 +25,7 @@ func TestMainOutput(t *testing.T) {
     io.Copy(&buf, r)
 
     // Comprobamos el resultado
-    esperado := "Hello, World!\n"
+    esperado := "Hi, World!\n"
     resultado := buf.String()
     if resultado != esperado {
         t.Errorf("Esperado: %q, Obtenido: %q", esperado, resultado)

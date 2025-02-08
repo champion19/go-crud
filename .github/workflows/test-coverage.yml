@@ -13,7 +13,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 10 
+          fetch-depth: 10
 
       - name: Set up Go
         uses: actions/setup-go@v4
@@ -41,13 +41,13 @@ jobs:
                 exit 1
              fi
 
-        
+
 
       - name: Archive Go Coverage Report
         uses: actions/upload-artifact@v4
         with:
           name: go-coverage-report
-          path: coverage.html  # Asegúrate de que el archivo de cobertura se haya generado correctamente
+          path: coverage.html
 
       - name: Debug working directory
-        run: ls -la  # Verificar en qué directorio estamos
+        run: ls -la
