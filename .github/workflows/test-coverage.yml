@@ -4,7 +4,7 @@ on:
   pull_request:
   push:
     branches:
-      - '*' # Asegura que se ejecute en la rama principal
+      - '*'
 
 jobs:
   coverage:
@@ -13,24 +13,41 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 10  # Necesario para encontrar notas previas de cobertura
+          fetch-depth: 10
 
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: stable  # Usa la versión estable de Go
+          go-version: 1.23.4
 
       - name: Run Go tests with coverage
         run: |
           go test -covermode=count -coverprofile=coverage.out ./...
           go tool cover -html=coverage.out -o coverage.html
-        # Este paso genera los archivos `coverage.out` y `coverage.html`
+
+      - name: Quality Gate - Test coverage shall be above threshold
+        env:
+          TESTCOVERAGE_THRESHOLD: 90
+        run: |
+             echo "Quality Gate: checking test coverage is above threshold ..."
+             echo "Threshold             : $TESTCOVERAGE_THRESHOLD %"
+             totalCoverage=`go tool cover -func=coverage.out | grep total | grep -Eo '[0-9]+\.[0-9]+'`
+             echo "Current test coverage : $totalCoverage %"
+             if (( $(echo "$totalCoverage $TESTCOVERAGE_THRESHOLD" | awk '{print ($1 > $2)}') )); then
+                echo "OK"
+             else
+                echo "Current test coverage is below threshold. Please add more unit tests or adjust threshold to a lower value."
+                echo "Failed"
+                exit 1
+             fi
+
+
 
       - name: Archive Go Coverage Report
         uses: actions/upload-artifact@v4
         with:
           name: go-coverage-report
-          path: coverage.html  # Asegúrate de que el archivo de cobertura se haya generado correctamente
+          path: coverage.html
 
       - name: Debug working directory
-        run: ls -la  # Verificar en qué directorio estamos
+        run: ls -la
